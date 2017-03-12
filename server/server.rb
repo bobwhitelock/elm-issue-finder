@@ -24,10 +24,16 @@ end
 
 get '/api/retrieve-issues' do
   halt 401 unless github_user
-  retrieve_stars(github_user).to_json
+  retrieve_stars.to_json
 end
 
-def retrieve_stars(github_user)
-  stars = github_user.api.starred(github_user.login)
+def retrieve_stars
+  stars = github_api.starred(github_user.login)
   stars.map { |s| s[:full_name] }
+end
+
+def github_api
+  github_user.api.tap do |api|
+    api.auto_paginate = true
+  end
 end
