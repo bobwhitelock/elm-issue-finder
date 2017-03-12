@@ -16,6 +16,7 @@ GEM
     multipart-post (2.0.0)
     octokit (4.6.2)
       sawyer (~> 0.8.0, >= 0.5.3)
+    parallel (1.11.1)
     public_suffix (2.0.5)
     rack (1.6.5)
     rack-protection (1.5.3)
@@ -45,8 +46,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  parallel
   sinatra
   sinatra_auth_github
 
+RUBY VERSION
+   ruby 2.4.0p0
+
 BUNDLED WITH
-   1.11.2
+   1.14.6

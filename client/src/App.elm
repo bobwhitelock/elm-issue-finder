@@ -5,23 +5,31 @@ import Html.Events exposing (onClick)
 import Navigation exposing (Location)
 import Types exposing (..)
 import UrlParser exposing ((<?>))
+import Http
+import RemoteData exposing (WebData)
 
 
 type alias Model =
     { message : String
     , logo : String
     , authenticatedUserName : Maybe String
+    , issues : Maybe (WebData String)
     }
 
 
 init : String -> Location -> ( Model, Cmd Msg )
 init pathFlag location =
-    ( { message = "Your Elm App is working!"
-      , logo = pathFlag
-      , authenticatedUserName = userNameFromUrl location
-      }
-    , Cmd.none
-    )
+    let
+        initialModel =
+            { message = "Your Elm App is working!"
+            , logo = pathFlag
+            , authenticatedUserName = userNameFromUrl location
+            , issues = Nothing
+            }
+    in
+        ( initialModel
+        , getIssuesIfAuthenticated initialModel
+        )
 
 
 userNameFromUrl : Location -> Maybe String
@@ -33,18 +41,41 @@ userNameFromUrl location =
         )
 
 
+getIssuesIfAuthenticated : Model -> Cmd Msg
+getIssuesIfAuthenticated model =
+    case model.authenticatedUserName of
+        Nothing ->
+            Cmd.none
+
+        Just userName ->
+            Http.getString getIssuesUrl
+                |> RemoteData.sendRequest
+                |> Cmd.map IssuesResponse
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        StartAuthentication ->
-            ( model, Navigation.load authenticationUrl )
-
         NoOp ->
             ( model, Cmd.none )
 
+        StartAuthentication ->
+            ( model, Navigation.load authenticationUrl )
+
+        IssuesResponse issues ->
+            ( { model | issues = Just issues }, Cmd.none )
+
 
 authenticationUrl =
-    "http://localhost:4567/authenticate"
+    serverUrl ++ "/authenticate"
+
+
+getIssuesUrl =
+    serverUrl ++ "/retrieve-issues"
+
+
+serverUrl =
+    "http://localhost/api"
 
 
 view : Model -> Html Msg

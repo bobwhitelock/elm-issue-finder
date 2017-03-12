@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
+
+# Note: probably not comprehensive/tested, just to help me not forget things.
+
+sudo ln -s "$PWD/nginx.conf" /etc/nginx/conf.d/elm-issue-finder.conf
+sudo systemctl restart nginx
+
+(cd server && gem install bundler && gem install rerun && bundle install)
+
+# To run client:
+# `elm-app start`
+
+# To run server:
+# `rerun ruby server.rb`
+
